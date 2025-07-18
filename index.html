@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instagram Video Downloader</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f953c6, #b91d73);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      color: #fff;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin: 5px;
+    }
+    input {
+      width: 300px;
+      border: none;
+    }
+    button {
+      background-color: #fff;
+      color: #b91d73;
+      border: none;
+      cursor: pointer;
+    }
+    #videoPreview {
+      margin-top: 30px;
+    }
+    video {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📥 Instagram Video Downloader</h1>
+  <input id="urlInput" type="text" placeholder="Paste Instagram video URL..." />
+  <button onclick="downloadVideo()">Download</button>
+  <div id="videoPreview"></div>
+
+  <script>
+    async function downloadVideo() {
+      const url = document.getElementById("urlInput").value;
+      const videoPreview = document.getElementById("videoPreview");
+      videoPreview.innerHTML = "Fetching...";
+
+      try {
+        const response = await fetch("/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          videoPreview.innerHTML = `
+            <video controls autoplay>
+              <source src="${data.video}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <br>
+            <a href="${data.video}" download><button>⬇️ Download Video</button></a>
+          `;
+        } else {
+          videoPreview.innerHTML = `❌ Error: ${data.error}`;
+        }
+      } catch (err) {
+        videoPreview.innerHTML = `⚠️ Error: ${err.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
